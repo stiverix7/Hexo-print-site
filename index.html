@@ -15,12 +15,28 @@
         .about-section h2 { text-align: center; color: #007bff; margin-top: 0; }
         .alert-box { background: #ffebee; border-left: 5px solid #f44336; padding: 15px; margin-top: 20px; border-radius: 4px; }
         
+        /* Grille et Cartes */
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; padding: 20px; max-width: 1000px; margin: 0 auto; }
-        .card { background: #fff; border: 1px solid #eee; padding: 20px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border-radius: 8px; position: relative; }
+        .card { background: #fff; border: 1px solid #eee; padding: 20px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border-radius: 8px; position: relative; overflow: hidden; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
         .card.custom-card { border: 2px dashed #007bff; background: #f4f9ff; }
         .product-img { width: 100%; height: 200px; object-fit: cover; border-radius: 6px; margin-bottom: 15px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #aaa; font-style: italic;}
         
+        /* Badge Promo */
+        .badge-promo { position: absolute; top: 10px; right: 10px; background: #e74c3c; color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85em; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
+        /* Carrousel d'images */
+        .carousel { position: relative; width: 100%; height: 200px; }
+        .carousel img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+        .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 50%; font-size: 1.2em; z-index: 2; transition: background 0.2s; }
+        .carousel-btn:hover { background: rgba(0,0,0,0.8); }
+        .carousel-btn.left { left: 10px; }
+        .carousel-btn.right { right: 10px; }
+        .carousel-dots { position: absolute; bottom: 10px; width: 100%; text-align: center; z-index: 2; }
+        .dot { display: inline-block; width: 10px; height: 10px; background: rgba(255,255,255,0.5); border-radius: 50%; margin: 0 4px; cursor: pointer; transition: background 0.2s; }
+        .dot.active { background: white; box-shadow: 0 0 3px rgba(0,0,0,0.5); }
+
+        /* Boutons et Inputs */
         .btn { display: inline-block; padding: 12px 24px; margin: 10px 5px; text-decoration: none; border-radius: 6px; color: #fff; font-weight: bold; transition: opacity 0.2s; cursor: pointer; border: none; font-size: 1em; }
         .btn:hover { opacity: 0.8; }
         .btn-wa { background: #25D366; }
@@ -30,13 +46,17 @@
         
         #floating-cart { position: fixed; bottom: 20px; right: 20px; background: #007bff; color: #fff; padding: 15px 25px; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 100; display: none; }
         
+        /* Modals */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; z-index: 1000; }
         .modal-content { background: #fff; padding: 30px; border-radius: 12px; max-width: 500px; width: 100%; position: relative; max-height: 90vh; overflow-y: auto; }
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #888; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #888; z-index: 20; }
         
         .cart-item { border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; }
         .warning-text { color: red; font-weight: bold; display: none; margin-top: -10px; margin-bottom: 15px; font-size: 0.9em; }
         
+        /* Affichage du total */
+        #cart-total { text-align: right; font-size: 1.3em; font-weight: bold; margin-bottom: 20px; border-top: 2px solid #eee; padding-top: 15px; color: #111; display: none; }
+
         footer { text-align: center; padding: 40px 20px; font-size: 0.95em; color: #555; max-width: 800px; margin: 0 auto; border-top: 1px solid #eee; }
     </style>
 </head>
@@ -82,7 +102,7 @@
             <span class="close-btn" onclick="closeModal('product-modal')">×</span>
             <div id="modal-img-container" class="product-img">Photo</div>
             <h2 id="modal-title" style="margin-top: 0;">Titre</h2>
-            <p id="modal-price" style="font-weight: bold; font-size: 1.2em; color: #007bff;"></p>
+            <p id="modal-price" style="font-size: 1.2em;"></p>
             <p id="modal-desc" style="color: #444; margin-bottom: 20px;"></p>
             
             <div style="text-align: left;">
@@ -110,7 +130,9 @@
             <span class="close-btn" onclick="closeModal('cart-modal')">×</span>
             <h2 style="margin-top: 0; text-align: center;">🛒 Ton Panier</h2>
             
-            <div id="cart-items" style="margin-bottom: 20px;"></div>
+            <div id="cart-items" style="margin-bottom: 5px;"></div>
+            
+            <div id="cart-total">Total : 0,00 €</div>
             
             <label><strong>Méthode de livraison :</strong></label>
             <select id="cart-livraison" onchange="checkWarnings()">
@@ -135,57 +157,38 @@
     </div>
 
     <script>
-        // VARIABLE DE RUPTURE DE STOCK (Laisse vide "" si tout est dispo)
+        // ==========================================
+        // ⚙️ VARIABLES GLOBALES
+        // ==========================================
         const COULEUR_EN_RUPTURE = ""; 
+        const POURCENTAGE_REDUCTION = 0; 
 
-        // LISTE DE TES ARTICLES
+        // ==========================================
+        // 📦 TES ARTICLES
+        // ==========================================
         const products = [
             { 
                 id: 1,
                 name: "Fidget Cone", 
                 price: "1 €", 
                 desc: "Petit jouet antistress pratique et cool.",
-                image: "image1.png",
+                images: [], 
                 isCustom: false
             },
             { 
                 id: 2,
-                name: "Sifflet", 
-                price: "1 € - 2 €", 
-                desc: "Sifflet portable et efficace, version puissante (2€) ou simple (1€).",
-                image: "",
+                name: "Crochet pour PS5", 
+                price: "0,38 €", 
+                desc: "Crochet pour vos casques, cables, ou autres accesoires. Vous l'attachez simplement à votre PS5 et le tour est joué!",
+                images: ["PShold.webp"], 
                 isCustom: false
             },
             { 
                 id: 3,
-                name: "Organisateur de bureau", 
-                price: "5 €", 
-                desc: "Organisateur parfait pour vos matériels de travail.",
-                image: "",
-                isCustom: false
-            },
-            { 
-                id: 4,
-                name: "Porte-clés", 
-                price: "3 €", 
-                desc: "Un porte-clés super résistant.",
-                image: "",
-                isCustom: false
-            },
-            { 
-                id: 5,
-                name: "Figurine", 
-                price: "5 €", 
-                desc: "Petite figurine cool",
-                image: "image1.png",
-                isCustom: false
-            },
-            { 
-                id: 6,
-                name: "Nintendo Switch: organisateur de jeux", 
+                name: "Carousel de jeux Switch", 
                 price: "2 €", 
-                desc: "boîte pratique pour mettre ses jeux ninetendo switch dedans, en forme de toneau Donkey Kong",
-                image: "image1.png",
+                desc: "Organisateur pour vos jeux Nintendo Swith! Comme vu sur le gif, vous tournez la roulette et le jeu sort comme par magie! Il tient 9 jeux, ATTENTION, les couleurs ne sont pas comme sur l'image, si vous voulez une option de "moitie noir moitie blanche" est disponible mais pas plus!",
+                images: [CardHold2.webp], [CardHold3.webp], [https://makerworld.bblmw.com/makerworld/model/US35d528f2cfe856/design/2025-04-02_16eb54d5e7783.gif?x-oss-process=image/resize,w_1000/format,webp]
                 isCustom: false
             },
             {
@@ -193,44 +196,121 @@
                 name: "✨ Impression 3D Sur Mesure ✨",
                 price: "Prix sur devis",
                 desc: "Tu as une idée précise ou ton propre fichier 3D ? Remplis les infos et on te donne un prix !",
-                image: "",
+                images: [],
                 isCustom: true
             }
-        
-        
-    
         ];
 
         let cart = [];
         let currentProduct = null;
+        let currentImageIndex = 0;
+        let currentModalImages = [];
+
+        function applyDiscount(priceStr) {
+            if (POURCENTAGE_REDUCTION <= 0) return priceStr;
+            return priceStr.replace(/\d+([.,]\d+)?/g, match => {
+                let num = parseFloat(match.replace(',', '.'));
+                let discounted = num * (1 - POURCENTAGE_REDUCTION / 100);
+                return Number.isInteger(discounted) ? discounted : discounted.toFixed(2);
+            });
+        }
 
         const grid = document.getElementById('product-grid');
         products.forEach(p => {
             const card = document.createElement('div');
             card.className = p.isCustom ? 'card custom-card' : 'card';
             
+            let hasPromo = (POURCENTAGE_REDUCTION > 0 && !p.isCustom);
+            let badgeHTML = hasPromo ? `<div class="badge-promo">PROMO -${POURCENTAGE_REDUCTION}%</div>` : '';
+            
+            let displayPrice = p.price;
+            let priceHTML = `<p style="margin: 0; font-weight:bold; color:${p.isCustom ? '#007bff' : '#555'};">${displayPrice}</p>`;
+            
+            if (hasPromo) {
+                let discountedPrice = applyDiscount(p.price);
+                priceHTML = `<p style="margin: 0; font-weight:bold; color:#e74c3c;"><s style="color:#999; font-size:0.85em;">${p.price}</s> ${discountedPrice}</p>`;
+            }
+
             let imgHTML = '';
             if (!p.isCustom) {
-                imgHTML = p.image ? `<img src="${p.image}" class="product-img">` : `<div class="product-img">🖨️ Photo à venir</div>`;
+                let firstImage = (p.images && p.images.length > 0) ? p.images[0] : "";
+                imgHTML = firstImage ? `<img src="${firstImage}" class="product-img">` : `<div class="product-img">🖨️ Photo à venir</div>`;
             } else {
                 imgHTML = `<div class="product-img" style="background:#cce5ff; color:#007bff; font-size:3em;">💡</div>`;
             }
             
             card.innerHTML = `
+                ${badgeHTML}
                 ${imgHTML}
                 <h3 style="margin: 10px 0 5px 0;">${p.name}</h3>
-                <p style="margin: 0; font-weight:bold; color:${p.isCustom ? '#007bff' : '#555'};">${p.price}</p>
+                ${priceHTML}
             `;
             card.onclick = () => openProductModal(p);
             grid.appendChild(card);
         });
 
+        function renderModalImage() {
+            const container = document.getElementById('modal-img-container');
+            
+            if (currentProduct.isCustom) {
+                container.innerHTML = `<div style="width:100%; height:200px; display:flex; align-items:center; justify-content:center; background:#cce5ff; color:#007bff; font-size:4em; border-radius:6px; margin-bottom:15px;">💡</div>`;
+                return;
+            }
+
+            if (!currentModalImages || currentModalImages.length === 0) {
+                 container.innerHTML = `<div class="product-img">🖨️ Photo à venir</div>`;
+                 return;
+            }
+
+            if (currentModalImages.length === 1) {
+                 container.innerHTML = `<img src="${currentModalImages[0]}" style="width:100%; height:200px; object-fit:cover; border-radius:6px; margin-bottom:15px;">`;
+                 return;
+            }
+
+            let img = `<img src="${currentModalImages[currentImageIndex]}" alt="Image produit">`;
+            let btns = `
+                <button class="carousel-btn left" onclick="changeImage(-1)">&#10094;</button>
+                <button class="carousel-btn right" onclick="changeImage(1)">&#10095;</button>
+            `;
+            let dots = '<div class="carousel-dots">';
+            currentModalImages.forEach((_, idx) => {
+                dots += `<span class="dot ${idx === currentImageIndex ? 'active' : ''}" onclick="goToImage(${idx})"></span>`;
+            });
+            dots += '</div>';
+
+            container.innerHTML = `<div class="carousel" style="margin-bottom:15px;">${img}${btns}${dots}</div>`;
+        }
+
+        function changeImage(dir) {
+            currentImageIndex += dir;
+            if (currentImageIndex < 0) currentImageIndex = currentModalImages.length - 1;
+            if (currentImageIndex >= currentModalImages.length) currentImageIndex = 0;
+            renderModalImage();
+        }
+
+        function goToImage(idx) {
+            currentImageIndex = idx;
+            renderModalImage();
+        }
+
         function openProductModal(product) {
             currentProduct = product;
             document.getElementById('modal-title').innerText = product.name;
-            document.getElementById('modal-price').innerText = product.price;
             document.getElementById('modal-desc').innerText = product.desc;
             document.getElementById('modal-qty').value = 1;
+            
+            let hasPromo = (POURCENTAGE_REDUCTION > 0 && !product.isCustom);
+            let finalPrice = product.price;
+            if (hasPromo) {
+                finalPrice = applyDiscount(product.price);
+                document.getElementById('modal-price').innerHTML = `<s style="color:#999; font-size:0.85em;">${product.price}</s> <span style="color:#e74c3c; font-weight:bold;">${finalPrice}</span>`;
+            } else {
+                document.getElementById('modal-price').innerHTML = `<span style="font-weight:bold; color:#007bff;">${finalPrice}</span>`;
+            }
+
+            currentModalImages = product.images || [];
+            currentImageIndex = 0;
+            renderModalImage();
             
             if(product.isCustom) {
                 document.getElementById('custom-fields').style.display = 'block';
@@ -238,15 +318,6 @@
                 document.getElementById('custom-dims').value = "";
             } else {
                 document.getElementById('custom-fields').style.display = 'none';
-            }
-            
-            let imgContainer = document.getElementById('modal-img-container');
-            if (product.isCustom) {
-                imgContainer.innerHTML = `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#cce5ff; color:#007bff; font-size:4em; border-radius:6px;">💡</div>`;
-            } else if(product.image) {
-                imgContainer.innerHTML = `<img src="${product.image}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;">`;
-            } else {
-                imgContainer.innerHTML = `🖨️ Photo à venir`;
             }
 
             const colorSelect = document.getElementById('modal-color');
@@ -277,9 +348,14 @@
 
             if(!color || isNaN(qty) || qty < 1) return;
 
+            let finalPriceToCart = currentProduct.price;
+            if (POURCENTAGE_REDUCTION > 0 && !currentProduct.isCustom) {
+                finalPriceToCart = applyDiscount(currentProduct.price);
+            }
+
             cart.push({
                 name: currentProduct.name,
-                price: currentProduct.price,
+                price: finalPriceToCart,
                 color: color,
                 qty: qty,
                 isCustom: currentProduct.isCustom,
@@ -299,21 +375,46 @@
 
         function openCart() {
             const cartItemsDiv = document.getElementById('cart-items');
+            const cartTotalDiv = document.getElementById('cart-total');
             cartItemsDiv.innerHTML = "";
+            
+            let totalCalc = 0;
+            let hasDevis = false;
             
             if(cart.length === 0) {
                 cartItemsDiv.innerHTML = "<p>Ton panier est vide.</p>";
+                cartTotalDiv.style.display = 'none';
             } else {
                 cart.forEach((item, index) => {
+                    // Calcul du prix
+                    if (item.isCustom) {
+                        hasDevis = true;
+                    } else {
+                        // Cherche le premier nombre dans le texte du prix (ex: "1 €" -> 1)
+                        let match = item.price.toString().match(/\d+([.,]\d+)?/);
+                        if (match) {
+                            let priceVal = parseFloat(match[0].replace(',', '.'));
+                            totalCalc += priceVal * item.qty;
+                        }
+                    }
+
                     let customInfo = item.isCustom ? `<br><small style="color:#007bff;">Format: ${item.format} | Taille: ${item.dims}</small>` : "";
                     cartItemsDiv.innerHTML += `
                         <div class="cart-item">
                             <div><strong>${item.qty}x ${item.name}</strong><br>
-                            <small>Couleur: ${item.color} | Prix: ${item.price}</small>${customInfo}</div>
+                            <small>Couleur: ${item.color} | Prix unitaire: ${item.price}</small>${customInfo}</div>
                             <button onclick="removeFromCart(${index})" style="background:none; border:none; color:red; cursor:pointer; font-size:1.2em;">×</button>
                         </div>
                     `;
                 });
+                
+                // Affichage du Total
+                let totalStr = `Total : ${totalCalc.toFixed(2).replace('.', ',')} €`;
+                if (hasDevis) {
+                    totalStr += ` <br><span style="font-size:0.7em; color:#007bff; font-weight:normal;">(+ prix du devis sur mesure)</span>`;
+                }
+                cartTotalDiv.innerHTML = totalStr;
+                cartTotalDiv.style.display = 'block';
             }
             checkWarnings();
             document.getElementById('cart-modal').style.display = 'flex';
@@ -337,13 +438,28 @@
             const livraison = document.getElementById('cart-livraison').value;
             const paiement = document.getElementById('cart-paiement').value;
             
+            let totalCalc = 0;
+            let hasDevis = false;
+            
             let text = "Bonjour Hexo Prints ! Voici ma commande 🖨️ :\n\n";
             cart.forEach(item => {
-                text += `▶ ${item.qty}x ${item.name} (${item.color})\n`;
+                text += `▶ ${item.qty}x ${item.name} (${item.color}) - Prix unitaire: ${item.price}\n`;
                 if(item.isCustom) {
                     text += `   ↳ Format : ${item.format}\n   ↳ Dimensions : ${item.dims}\n`;
+                    hasDevis = true;
+                } else {
+                    let match = item.price.toString().match(/\d+([.,]\d+)?/);
+                    if (match) {
+                        let priceVal = parseFloat(match[0].replace(',', '.'));
+                        totalCalc += priceVal * item.qty;
+                    }
                 }
             });
+            
+            let totalStr = totalCalc.toFixed(2).replace('.', ',') + " €";
+            if (hasDevis) totalStr += " (+ prix du devis sur mesure)";
+            
+            text += `\n💰 Total estimé : ${totalStr}`;
             text += `\n📦 Livraison : ${livraison}\n💳 Paiement : ${paiement}\n\nMerci !`;
 
             if (type === 'wa') {
