@@ -96,9 +96,35 @@
         </p>
     </div>
 
-    <h2 style="text-align: center; color: #333; margin-top: 40px;">Nos Modèles 3D</h2>
+    <h2 style="text-align: center; color: #333; margin-top: 40px;">Nos Modèles 3D (Suggestions)</h2>
     <div class="grid" id="product-grid"></div>
 
+    <hr style="margin: 40px auto; max-width: 800px; border: 1px solid #eee;">
+    <div class="about-section" id="makerworld-section" style="max-width: 1000px; text-align: center;">
+        <h2>🌐 Commande libre depuis MakerWorld</h2>
+        <p>Tu as trouvé la perle rare sur MakerWorld ? Copie simplement le lien du modèle qui te plaît et colle-le dans le formulaire ci-dessous pour l'ajouter à ton panier !</p>
+        
+        <div style="border: 2px solid #007bff; border-radius: 8px; overflow: hidden; margin-bottom: 20px;">
+            <iframe src="https://makerworld.com/en" width="100%" height="500px" style="border:none;"></iframe>
+        </div>
+        <p style="font-size: 0.85em; color: #888; margin-top: -10px; margin-bottom: 20px;">Note : Si la fenêtre MakerWorld refuse de s'afficher (sécurité du site), ouvre simplement <a href="https://makerworld.com" target="_blank">leur site ici</a> dans un nouvel onglet.</p>
+
+        <div style="background: #f4f9ff; padding: 20px; border-radius: 8px; text-align: left; max-width: 600px; margin: 0 auto; border: 1px dashed #007bff;">
+            <label><strong>🔗 Colle le lien du modèle MakerWorld ici :</strong></label>
+            <input type="text" id="mw-link" placeholder="Ex: https://makerworld.com/en/models/...">
+            
+            <label><strong>Couleur souhaitée :</strong></label>
+            <select id="mw-color">
+                <option value="Noir">Noir</option>
+                <option value="Blanc">Blanc</option>
+            </select>
+
+            <label><strong>Quantité :</strong></label>
+            <input type="number" id="mw-qty" value="1" min="1">
+            
+            <button class="btn btn-cart" onclick="addMakerWorldToCart()" style="margin-top: 10px;">Ajouter ce modèle au panier</button>
+        </div>
+    </div>
     <footer>
         <p><strong>Paiement :</strong> Vous pouvez payer en cash ou par application bancaire.<br>
         <strong>Livraison :</strong> Gratuite devant l'école, ou à domicile avec une petite taxe.</p>
@@ -173,7 +199,7 @@
         // ⚙️ VARIABLES GLOBALES
         // ==========================================
         const COULEUR_EN_RUPTURE = ""; 
-        const POURCENTAGE_REDUCTION = 0; // Réduction globale pour tout le site (0 pour désactiver)
+        const POURCENTAGE_REDUCTION = 0; 
 
         // ==========================================
         // 📦 TES ARTICLES
@@ -186,8 +212,8 @@
                 desc: "Petit jouet antistress pratique et cool. Possibilité de couleurs mélangées comme montré sur les images, demander. Ce produit a été testé de nombreuses fois par plusieures personne, il a été approuvé par notre équipe.",
                 images: ["https://i.etsystatic.com/21975876/r/il/f4151f/6139761686/il_fullxfull.6139761686_nce6.jpg", "https://i.ebayimg.com/images/g/cOcAAeSwRhJo0IFg/s-l400.jpg", "https://din3dprinter.dk/cdn/shop/files/Spiral_fidget_2.jpg?v=1742209115"], 
                 isCustom: false,
-                isBestSeller: true,    // <-- NOUVEAU : Met "true" pour activer le badge Best Seller
-                discountPercent: 40     // <-- NOUVEAU : Promo individuelle (met 0 si pas de promo)
+                isBestSeller: true,
+                discountPercent: 40
             },
             { 
                 id: 2,
@@ -212,12 +238,12 @@
             { 
                 id: 4,
                 name: "Vase de fleur", 
-                price: "1,70/0,60 €", 
+                price: "1,70 € / 0,60 €", 
                 desc: "Pot de fleur pratique, motif cool de spirale !!! Disponible en GRAND: 95,94x95,93x80mm 1,70€ / MOYEN: 67,16x67,15x56mm 0,60€",
                 images: ["PotFleur.webp"],
                 isCustom: false,
                 isBestSeller: false,
-                discountPercent: 30    // <-- EXEMPLE : Cet article aura -10% de réduction uniquement lui !
+                discountPercent: 30
             },
             { 
                 id: 5,
@@ -227,7 +253,7 @@
                 images: ["https://pic2-cdn.creality.com/model/2fc2d7c722a5d5ea7f21dc025705a9b3.png?x-oss-process=image/resize,w_700/format,webp/ignore-error,1", "https://pic2-cdn.creality.com/model/d25a28b48aa44bab95ee4e1a529d6586.png?x-oss-process=image/resize,w_700/format,webp/ignore-error,1"],
                 isCustom: false,
                 isBestSeller: false,
-                discountPercent: 33    // <-- EXEMPLE : Cet article aura -10% de réduction uniquement lui !
+                discountPercent: 33
             },
             { 
                 id: 6,
@@ -298,6 +324,7 @@
                 isCustom: false,
                 isBestSeller: false,
                 discountPercent: 0
+            },
             {
                 id: "custom",
                 name: "✨ Impression 3D Sur Mesure ✨",
@@ -306,7 +333,7 @@
                 images: [],
                 isCustom: true,
                 isBestSeller: false,
-                discountPercent: 10
+                discountPercent: 0
             }
         ];
 
@@ -315,7 +342,6 @@
         let currentImageIndex = 0;
         let currentModalImages = [];
 
-        // Fonction de calcul de réduction (prend en compte la promo individuelle ou globale)
         function applyDiscount(priceStr, customPercent) {
             let activePercent = customPercent > 0 ? customPercent : POURCENTAGE_REDUCTION;
             if (activePercent <= 0) return priceStr;
@@ -331,12 +357,10 @@
             const card = document.createElement('div');
             card.className = p.isCustom ? 'card custom-card' : 'card';
             
-            // Gestion des réductions pour la carte
             let itemDiscount = p.discountPercent || POURCENTAGE_REDUCTION;
             let hasPromo = (itemDiscount > 0 && !p.isCustom);
             let badgePromoHTML = hasPromo ? `<div class="badge-promo">PROMO -${itemDiscount}%</div>` : '';
             
-            // Gestion du badge Best Seller
             let badgeBestSellerHTML = p.isBestSeller ? `<div class="badge-bestseller">⭐ Best Seller</div>` : '';
             
             let displayPrice = p.price;
@@ -366,7 +390,6 @@
             grid.appendChild(card);
         });
 
-        // Fonction pour ouvrir l'image en grand (Lightbox)
         function openLightbox(imgSrc) {
             document.getElementById('lightbox-img').src = imgSrc;
             document.getElementById('lightbox-modal').style.display = 'flex';
@@ -390,7 +413,6 @@
                  return;
             }
 
-            // Ajout du onclick pour agrandir l'image du carrousel
             let img = `<img src="${currentModalImages[currentImageIndex]}" alt="Image produit" onclick="openLightbox('${currentModalImages[currentImageIndex]}')">`;
             let btns = `
                 <button class="carousel-btn left" onclick="changeImage(-1)">&#10094;</button>
@@ -461,6 +483,36 @@
             document.getElementById('product-modal').style.display = 'flex';
         }
 
+        // ==========================================
+        // 🛠️ FONCTION POUR AJOUTER DEPUIS MAKERWORLD
+        // ==========================================
+        function addMakerWorldToCart() {
+            const link = document.getElementById('mw-link').value.trim();
+            const color = document.getElementById('mw-color').value;
+            const qty = parseInt(document.getElementById('mw-qty').value);
+
+            if (!link) {
+                alert("N'oublie pas de coller le lien du modèle MakerWorld !");
+                return;
+            }
+
+            if (isNaN(qty) || qty < 1) return;
+
+            cart.push({
+                name: "🌐 Modèle MakerWorld",
+                price: "Prix sur devis",
+                color: color,
+                qty: qty,
+                isCustom: true,
+                format: "Lien MakerWorld",
+                dims: link // On utilise la propriété "dims" pour stocker le lien
+            });
+
+            document.getElementById('mw-link').value = ""; // Vider le champ après ajout
+            updateCartUI();
+            openCart(); // Ouvre le panier direct pour montrer que ça a marché
+        }
+
         function addToCart() {
             const color = document.getElementById('modal-color').value;
             const qty = parseInt(document.getElementById('modal-qty').value);
@@ -523,7 +575,15 @@
                         }
                     }
 
-                    let customInfo = item.isCustom ? `<br><small style="color:#007bff;">Format: ${item.format} | Taille: ${item.dims}</small>` : "";
+                    let customInfo = "";
+                    if (item.isCustom) {
+                        if (item.format === "Lien MakerWorld") {
+                            customInfo = `<br><small style="color:#007bff; word-break: break-all;">Lien: <a href="${item.dims}" target="_blank">Ouvrir le modèle</a></small>`;
+                        } else {
+                            customInfo = `<br><small style="color:#007bff;">Format: ${item.format} | Taille: ${item.dims}</small>`;
+                        }
+                    }
+
                     cartItemsDiv.innerHTML += `
                         <div class="cart-item">
                             <div><strong>${item.qty}x ${item.name}</strong><br>
@@ -535,7 +595,7 @@
                 
                 let totalStr = `Total : ${totalCalc.toFixed(2).replace('.', ',')} €`;
                 if (hasDevis) {
-                    totalStr += ` <br><span style="font-size:0.7em; color:#007bff; font-weight:normal;">(+ prix du devis sur mesure)</span>`;
+                    totalStr += ` <br><span style="font-size:0.7em; color:#007bff; font-weight:normal;">(+ prix du/des devis sur mesure)</span>`;
                 }
                 cartTotalDiv.innerHTML = totalStr;
                 cartTotalDiv.style.display = 'block';
@@ -569,7 +629,11 @@
             cart.forEach(item => {
                 text += `▶ ${item.qty}x ${item.name} (${item.color}) - Prix unitaire: ${item.price}\n`;
                 if(item.isCustom) {
-                    text += `   ↳ Format : ${item.format}\n   ↳ Dimensions : ${item.dims}\n`;
+                    if (item.format === "Lien MakerWorld") {
+                        text += `   ↳ Lien : ${item.dims}\n`;
+                    } else {
+                        text += `   ↳ Format : ${item.format}\n   ↳ Dimensions : ${item.dims}\n`;
+                    }
                     hasDevis = true;
                 } else {
                     let match = item.price.toString().match(/\d+([.,]\d+)?/);
